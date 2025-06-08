@@ -1,0 +1,21 @@
+{
+  "lastDeployment": "2025-06-08T17:22:09.396Z",
+  "networkInfo": {
+    "name": "Ganache Local",
+    "chainId": 1337,
+    "rpcUrl": "http://127.0.0.1:7545"
+  },
+  "contracts": {
+    "HairStyleNFT": {
+      "address": "0x3499Ab4EfA1889c85ee413F79a87842092813429",
+      "verified": true
+    },
+    "Marketplace": {
+      "address": "0x5Cf8543e14721B59db5f3AA10B089d3d82c7d0D4",
+      "verified": true
+    }
+  },
+  "status": "deployed",
+  "frontendReady": true,
+  "lastUpdate": "2025-06-08T17:22:09.424Z"
+}

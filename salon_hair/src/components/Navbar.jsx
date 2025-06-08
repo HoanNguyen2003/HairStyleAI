@@ -1,13 +1,42 @@
 import React from 'react';
+import WalletButton from './WalletButton';
 
-function Navbar() {
+function Navbar({ activeSection, setActiveSection }) {
+  const navItems = [
+    { id: 'home', label: '🏠 Trang chủ' },
+    { id: 'marketplace', label: '🏪 Marketplace' },
+    { id: 'my-nfts', label: '🎨 My NFTs' },
+    { id: 'trending', label: '🔥 Xu hướng' }
+  ];
+
   return (
-    <div className="navbar">
-      <a href="#" className="nav-item active">Thử kiểu tóc</a>
-      <a href="#" className="nav-item">Về chúng tôi</a>
-      <a href="#" className="nav-item">Dịch vụ</a>
-      <a href="#" className="nav-item">Liên hệ</a>
-    </div>
+    <nav className="navbar">
+      <div className="nav-container">
+        {/* Logo/Brand (optional) */}
+        <div className="nav-brand">
+          <span className="brand-icon">✨</span>
+          <span className="brand-text">HairStyleAI</span>
+        </div>
+        
+        {/* Navigation Links */}
+        <div className="nav-links">
+          {navItems.map((item) => (
+            <button 
+              key={item.id}
+              className={`nav-link ${activeSection === item.id ? 'active' : ''}`}
+              onClick={() => setActiveSection(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Wallet Button */}
+        <div className="nav-wallet">
+          <WalletButton />
+        </div>
+      </div>
+    </nav>
   );
 }
 
