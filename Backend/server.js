@@ -71,11 +71,11 @@ app.post('/swap', upload.fields([
     const timeoutId = setTimeout(() => {
       controller.abort();
       console.warn('⏰ AI server request timeout');
-    }, 30000); // 30 second timeout
+    }, 150000); // 30 second timeout
 
     let response;
     try {
-      response = await fetch('https://c596-34-87-111-204.ngrok-free.app/swap/', {
+      response = await fetch('https://e64c-34-53-27-132.ngrok-free.app/swap/', {
         method: 'POST',
         body: formData,
         signal: controller.signal,
@@ -89,19 +89,8 @@ app.post('/swap', upload.fields([
       throw fetchError;
     }
 
-    // Check if AI server responded successfully
     if (!response.ok) {
       console.warn(`⚠️ AI server error: ${response.status} ${response.statusText}`);
-      
-      if (response.status === 404) {
-        console.warn('🔍 AI server endpoint not found');
-      } else if (response.status >= 500) {
-        console.warn('🔧 AI server internal error');
-      } else if (response.status === 429) {
-        console.warn('⏳ AI server rate limit exceeded');
-      }
-      
-      // Return white image on AI server error
       const whiteImage = await createWhiteImage();
       res.set({
         'Content-Type': 'image/jpeg',
@@ -110,61 +99,54 @@ app.post('/swap', upload.fields([
       return res.send(whiteImage);
     }
 
-    // Try to get the result image
-    let resultBuffer;
-    try {
-      resultBuffer = await response.buffer();
-      
-      // Validate that we got actual image data
+    // Xử lý response: có thể là JSON (metadata + base64) hoặc file ảnh
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      // Trường hợp AI server trả về JSON (metadata + base64)
+      const data = await response.json();
+      console.log('📥 Received response from AI server:', data);
+      if (data.image_base64) {
+        // Giải mã base64 thành buffer
+        const imgBuffer = Buffer.from(data.image_base64, 'base64');
+        // Gửi về frontend dưới dạng file ảnh nhị phân
+        return res.json({
+          success: true,
+          image_base64: data.image_base64,
+          semantic: data.semantic || null,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            source: 'HairStyleAI'
+          }
+        });
+      } else {
+        // Không có ảnh, trả về ảnh trắng
+        const whiteImage = await createWhiteImage();
+        res.set('Content-Type', 'image/jpeg');
+        res.send(whiteImage);
+      }
+    } else {
+      // Trường hợp AI server trả về file ảnh
+      let resultBuffer = await response.buffer();
       if (!resultBuffer || resultBuffer.length === 0) {
         throw new Error('Empty response from AI server');
       }
-
-      // Check if response is actually an image by checking magic bytes
+      // Kiểm tra magic bytes
       const isJPEG = resultBuffer[0] === 0xFF && resultBuffer[1] === 0xD8;
       const isPNG = resultBuffer[0] === 0x89 && resultBuffer[1] === 0x50;
-      
       if (!isJPEG && !isPNG) {
-        console.warn('⚠️ Response is not a valid image format');
         throw new Error('Invalid image format from AI server');
       }
-
-      console.log('✅ Successfully received image from AI server');
-      res.set('Content-Type', 'image/jpeg');
+      res.set('Content-Type', isPNG ? 'image/png' : 'image/jpeg');
       res.send(resultBuffer);
-
-    } catch (bufferError) {
-      console.warn('⚠️ Error processing AI server response:', bufferError.message);
-      
-      // Return white image if buffer processing fails
-      const whiteImage = await createWhiteImage();
-      res.set({
-        'Content-Type': 'image/jpeg',
-        'X-Fallback-Reason': 'Invalid response format'
-      });
-      return res.send(whiteImage);
     }
-
   } catch (err) {
     console.error('❌ Error in swap endpoint:', err);
-    
-    // Determine error type and log appropriately
     let errorReason = 'Unknown error';
-    if (err.name === 'AbortError') {
-      errorReason = 'Request timeout';
-      console.error('⏰ Request timed out');
-    } else if (err.code === 'ECONNREFUSED') {
-      errorReason = 'AI server unreachable';
-      console.error('🔌 Cannot connect to AI server');
-    } else if (err.code === 'ENOTFOUND') {
-      errorReason = 'AI server not found';
-      console.error('🌐 AI server hostname not found');
-    } else if (err.message.includes('fetch')) {
-      errorReason = 'Network error';
-      console.error('🌐 Network error:', err.message);
-    }
+    if (err.name === 'AbortError') errorReason = 'Request timeout';
+    else if (err.code === 'ECONNREFUSED') errorReason = 'AI server unreachable';
+    else if (err.code === 'ENOTFOUND') errorReason = 'AI server not found';
+    else if (err.message && err.message.includes('fetch')) errorReason = 'Network error';
 
-    // Always return white image on any error
     try {
       const whiteImage = await createWhiteImage();
       res.set({
@@ -174,8 +156,6 @@ app.post('/swap', upload.fields([
       });
       res.send(whiteImage);
     } catch (fallbackError) {
-      console.error('❌ Even white image creation failed:', fallbackError);
-      // Last resort: return 500 with error message
       res.status(500).json({
         error: 'Service temporarily unavailable',
         reason: errorReason,

@@ -77,7 +77,7 @@ function MyNFTs() {
       addDebug(`🔍 Processing ${ownedTokens.length} owned tokens...`);
 
       // ✅ ENHANCED: Load token data with real-time verification
-      const nftData = await Promise.all(
+      const nftData = await Promise.all( 
         ownedTokens.map(async (tokenId, index) => {
           try {
             const tokenIdNumber = tokenId.toNumber ? tokenId.toNumber() : parseInt(tokenId);
@@ -125,7 +125,10 @@ function MyNFTs() {
                 if (response.ok) {
                   const fetchedMetadata = await response.json();
                   metadata = { ...metadata, ...fetchedMetadata };
+                  console.log(fetchedMetadata);
+                  console.log(metadata);
                 }
+
               }
             } catch (metadataError) {
               addDebug(`⚠️ Metadata loading failed for token ${tokenIdNumber}: ${metadataError.message}`);
@@ -134,19 +137,27 @@ function MyNFTs() {
             const nftItem = {
               tokenId: tokenIdNumber,
               owner,
-              metadata,
               hairStyleData: {
                 likes: hairStyleData.likes?.toNumber?.() || 0,
-                hairType: hairStyleData.hairType || 'Unknown',
-                colorType: hairStyleData.colorType || 'Unknown',
+                colorType: metadata.metadata.hairColor || '',
                 isForSale: actuallyForSale, // ✅ Use verified sale status
                 price: (actuallyForSale && hairStyleData.price) ? 
                        ethers.utils.formatEther(hairStyleData.price) : '0',
                 creator: hairStyleData.creator || 'Unknown',
                 timestamp: hairStyleData.timestamp?.toNumber ? 
-                          new Date(hairStyleData.timestamp.toNumber() * 1000) : new Date()
+                          new Date(hairStyleData.timestamp.toNumber() * 1000) : new Date(),
+                faceShape: metadata.metadata.faceShape || '',
+                colorFamily: metadata.metadata.colorFamily || '',
+                colorName: metadata.metadata.colorName || '',
+                compatibilityScore: metadata.metadata.compatibilityScore || '',
+                advice: metadata.metadata.advice || {},
+                attributes: metadata.metadata.attributes || [],
+                description: metadata.metadata.description || '',
+                image: metadata.image || '',
+                name: metadata.metadata.name || '',
               }
             };
+            console.log(nftItem);
 
             addDebug(`✅ Successfully processed NFT #${tokenIdNumber}`);
             return nftItem;
@@ -326,14 +337,18 @@ function MyNFTs() {
     }
   };
 
-  const getImageSrc = (metadata, tokenId) => {
-    if (metadata.image) {
-      if (metadata.image.startsWith('ipfs://')) {
-        const ipfsHash = metadata.image.replace('ipfs://', '');
+  const getImageSrc = (hairStyleData, tokenId) => {
+    if (hairStyleData && hairStyleData.image) {
+      // Nếu là CID (chỉ gồm ký tự base58, không có ipfs:// hoặc http)
+      if (/^[a-zA-Z0-9]{46,}$/.test(hairStyleData.image)) {
+        return `https://gateway.pinata.cloud/ipfs/${hairStyleData.image}`;
+      }
+      if (hairStyleData.image.startsWith('ipfs://')) {
+        const ipfsHash = hairStyleData.image.replace('ipfs://', '');
         return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
       }
-      if (metadata.image.startsWith('http')) {
-        return metadata.image;
+      if (hairStyleData.image.startsWith('http') || hairStyleData.image.startsWith('data:')) {
+        return hairStyleData.image;
       }
     }
     return `https://via.placeholder.com/400x400/667eea/ffffff?text=Hair+Style+${tokenId}`;
@@ -472,8 +487,8 @@ function MyNFTs() {
               <div key={nft.tokenId} className="nft-card my-nft-card">
                 <div className="nft-image">
                   <img 
-                    src={getImageSrc(nft.metadata, nft.tokenId)}
-                    alt={nft.metadata.name}
+                    src={getImageSrc(nft.hairStyleData, nft.tokenId)}
+                    alt={nft.hairStyleData.name}
                     onError={(e) => {
                       e.target.src = `https://via.placeholder.com/400x400/667eea/ffffff?text=NFT+${nft.tokenId}`;
                     }}
@@ -491,34 +506,19 @@ function MyNFTs() {
                 </div>
                 
                 <div className="nft-info">
-                  <h3>{nft.metadata.name || `Hair Style #${nft.tokenId}`}</h3>
+                  <h3>{nft.hairStyleData.name || `Hair Style #${nft.tokenId}`}</h3>
                   {/* <p className="nft-description">{nft.metadata.description}</p> */}
                   
                   <div className="nft-details">
-                    <div className="detail-item">
-                      <span>Token ID:</span>
-                      <span>#{nft.tokenId}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Hair Type:</span>
-                      <span>{nft.hairStyleData.hairType}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Color:</span>
-                      <span>{nft.hairStyleData.colorType}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Current Owner:</span>
-                      <span className="owner-you">You</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Creator:</span>
-                      <span>{nft.hairStyleData.creator === account ? 'You' : nft.hairStyleData.creator?.slice(0,6) + '...' + nft.hairStyleData.creator?.slice(-4)}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span>Likes:</span>
-                      <span>❤️ {nft.hairStyleData.likes}</span>
-                    </div>
+                    <div className="detail-item"><span>Token ID:</span> <span>#{nft.tokenId}</span></div>
+                      <div className="detail-item"><span>Face Shape:</span> <span>{nft.hairStyleData.faceShape}</span></div>
+                      <div className="detail-item"><span>Hair Color:</span> <span>{nft.hairStyleData.colorType}</span></div>
+                      <div className="detail-item"><span>Color Name:</span> <span>{nft.hairStyleData.colorName}</span></div>
+                      <div className="detail-item"><span>Color Family:</span> <span>{nft.hairStyleData.colorFamily}</span></div>
+                      <div className="detail-item"><span>Compatibility:</span> <span>{nft.hairStyleData.compatibilityScore}/10</span></div>
+                      <div className="detail-item"><span>Advice:</span> <span>{nft.hairStyleData.advice?.tip}</span></div>
+                      <div className="detail-item"><span>Likes:</span> <span>❤️ {nft.hairStyleData.likes}</span></div>
+                      <div className="detail-item"><span>Creator:</span> <span>{nft.hairStyleData.creator === account ? 'You' : nft.hairStyleData.creator?.slice(0,6) + '...' + nft.hairStyleData.creator?.slice(-4)}</span></div>
                     {nft.hairStyleData.isForSale && (
                       <div className="detail-item">
                         <span>Listed Price:</span>

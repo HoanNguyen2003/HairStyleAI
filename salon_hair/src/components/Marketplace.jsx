@@ -194,7 +194,10 @@ function Marketplace() {
   };
 
   const getImageSrc = (metadata, tokenId) => {
-    if (metadata?.image) {
+    console.log(metadata);
+    const imageHash = metadata?.image || '';
+    console.log(imageHash);
+    if (imageHash) {
       if (metadata.image.startsWith('ipfs://')) {
         const ipfsHash = metadata.image.replace('ipfs://', '');
         return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
@@ -202,6 +205,7 @@ function Marketplace() {
       if (metadata.image.startsWith('http')) {
         return metadata.image;
       }
+      return `https://gateway.pinata.cloud/ipfs/${imageHash}`;
     }
     return `https://via.placeholder.com/400x400/667eea/ffffff?text=Hair+Style+${tokenId}`;
   };
@@ -265,8 +269,8 @@ function Marketplace() {
   return (
     <div className="marketplace">
       <div className="marketplace-header">
-        <h1>🏪 Hair Style NFT Marketplace</h1>
-        <p>Khám phá và sưu tập những NFT kiểu tóc AI độc đáo</p>
+        {/* <h1>🏪 Hair Style NFT Marketplace</h1> */}
+        {/* <p>Khám phá và sưu tập những NFT kiểu tóc AI độc đáo</p> */}
         
         <div className="marketplace-stats">
           <div className="stat-item">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWeb3 } from '../contexts/Web3Context';
 import { uploadToIPFS, uploadJSONToIPFS } from '../utils/ipfs';
 
-function ResultSection({ resultImage, isProcessing, originalImages }) {
+function ResultSection({ resultImage, isProcessing, originalImages, semanticData }) {
   const { account, contracts, isConnected, balance, updateBalance } = useWeb3();
   const [isMinting, setIsMinting] = useState(false);
 
@@ -59,25 +59,8 @@ function ResultSection({ resultImage, isProcessing, originalImages }) {
       // Create metadata with enhanced attributes
       const timestamp = new Date().toISOString();
       const metadata = {
-        name: `Hair Style NFT #${Date.now()}`,
-        description: `AI-generated hairstyle created with HairStyleAI Web3. Hair Type: ${originalImages.hairShape?.name || 'Custom'}, Color: ${originalImages.hairColor?.name || 'Custom'}`,
-        image: `ipfs://${resultImageHash}`,
-        external_url: window.location.href,
-        animation_url: null,
-        attributes: [
-          { trait_type: 'Hair Type', value: originalImages.hairShape?.name || 'Custom' },
-          { trait_type: 'Hair Color', value: originalImages.hairColor?.name || 'Custom' },
-          { trait_type: 'Creation Date', value: timestamp },
-          { trait_type: 'Creator', value: account },
-          { trait_type: 'Platform', value: 'HairStyleAI Web3' },
-          { trait_type: 'Version', value: '1.2' },
-          { trait_type: 'Original Image', value: originalImageHash ? 'Yes' : 'No' }
-        ],
-        properties: {
-          category: 'AI Generated Hair Style',
-          creator: account,
-          created_at: timestamp
-        }
+        image:  `ipfs://${resultImageHash}`,
+        metadata: semanticData || null
       };
 
       console.log('📤 Uploading metadata to IPFS...');
@@ -91,8 +74,8 @@ function ResultSection({ resultImage, isProcessing, originalImages }) {
         `ipfs://${metadataHash}`,
         originalImageHash,
         resultImageHash,
-        originalImages.hairShape?.name || 'Custom',
-        originalImages.hairColor?.name || 'Custom'
+        semanticData?.faceShape || originalImages.hairShape?.name || 'Custom',
+        semanticData?.hairColor || originalImages.hairColor?.name || 'Custom'
       );
 
       console.log('⏳ Waiting for transaction confirmation...');

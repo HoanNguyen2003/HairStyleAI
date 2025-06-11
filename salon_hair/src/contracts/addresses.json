@@ -1,8 +1,8 @@
 {
-  "HairStyleNFT": "0x3499Ab4EfA1889c85ee413F79a87842092813429",
-  "Marketplace": "0x5Cf8543e14721B59db5f3AA10B089d3d82c7d0D4",
+  "HairStyleNFT": "0x78422bBa1D3E391F6d1d06e68de0663550f0E221",
+  "Marketplace": "0x5CE770B82B6c11682107FE8BB8684C0ae754ef5f",
   "network": "ganache",
   "chainId": 1337,
-  "deployedAt": "2025-06-08T17:22:09.375Z",
-  "deployer": "0x6016D80BCba370B08e7070624526677d29B7254E"
+  "deployedAt": "2025-06-11T02:26:06.882Z",
+  "deployer": "0xBF7A360b11F93e0ac675cB84770139f4ac1e9b58"
 }

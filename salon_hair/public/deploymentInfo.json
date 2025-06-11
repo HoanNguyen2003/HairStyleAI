@@ -1,5 +1,5 @@
 {
-  "lastDeployment": "2025-06-08T17:22:09.396Z",
+  "lastDeployment": "2025-06-11T02:26:06.920Z",
   "networkInfo": {
     "name": "Ganache Local",
     "chainId": 1337,
@@ -7,15 +7,15 @@
   },
   "contracts": {
     "HairStyleNFT": {
-      "address": "0x3499Ab4EfA1889c85ee413F79a87842092813429",
+      "address": "0x78422bBa1D3E391F6d1d06e68de0663550f0E221",
       "verified": true
     },
     "Marketplace": {
-      "address": "0x5Cf8543e14721B59db5f3AA10B089d3d82c7d0D4",
+      "address": "0x5CE770B82B6c11682107FE8BB8684C0ae754ef5f",
       "verified": true
     }
   },
   "status": "deployed",
   "frontendReady": true,
-  "lastUpdate": "2025-06-08T17:22:09.424Z"
+  "lastUpdate": "2025-06-11T02:26:06.952Z"
 }

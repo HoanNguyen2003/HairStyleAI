@@ -3,10 +3,11 @@ import WalletButton from './WalletButton';
 
 function Navbar({ activeSection, setActiveSection }) {
   const navItems = [
-    { id: 'home', label: '🏠 Trang chủ' },
-    { id: 'marketplace', label: '🏪 Marketplace' },
-    { id: 'my-nfts', label: '🎨 My NFTs' },
-    { id: 'trending', label: '🔥 Xu hướng' }
+    { id: 'home', label: 'Trang chủ' },
+    { id: 'marketplace', label: 'Marketplace' },
+    { id: 'my-nfts', label: 'My NFTs' },
+    { id: 'trending', label: 'Xu hướng' },
+    { id: 'about', label: 'Giới thiệu' }
   ];
 
   return (

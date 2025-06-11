@@ -16,7 +16,7 @@ module.exports = {
       url: "HTTP://127.0.0.1:7545",
       accounts: [
         // Thay bằng private key từ Ganache accounts của bạn
-        "0x2b39650a2abe9878f74174ad62c65885a1c202eaae0c92f508564b6d473c79af"
+        "0x774e8c6405a8f7e0e2445422c2112d8556a7caca6687c3e7113617d9cbb7eca7"
       ],
       chainId: 1337
     },

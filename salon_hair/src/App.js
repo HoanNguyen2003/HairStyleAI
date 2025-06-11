@@ -8,6 +8,7 @@ import Marketplace from './components/Marketplace';
 import MyNFTs from './components/MyNFTs';
 import TrendingStyles from './components/TrendingStyles';
 import { NFTProvider } from './contexts/NFTContext';
+import About from './components/About';
 
 import Reviews from './components/Reviews';
 import Footer from './components/Footer';
@@ -18,6 +19,7 @@ function App() {
   const [faceImage, setFaceImage] = useState(null);
   const [hairShape, setHairShape] = useState(null);
   const [hairColor, setHairColor] = useState(null);
+  const [semanticData, setSemanticData] = useState(null);
   const [resultImage, setResultImage] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -31,6 +33,7 @@ function App() {
 
     setIsProcessing(true);
     setError(null);
+    setSemanticData(null);
 
     const formData = new FormData();
     formData.append('face', faceImage);
@@ -47,8 +50,14 @@ function App() {
         throw new Error(`Lỗi từ server: ${response.status}`);
       }
 
-      const blob = await response.blob();
-      setResultImage(URL.createObjectURL(blob));
+      const blob = await response.json();
+      if (blob.success && blob.image_base64) {
+        setSemanticData(blob.semantic);
+        
+        // ✅ CONVERT BASE64 THÀNH DATA URL
+        const imageUrl = `data:image/png;base64,${blob.image_base64}`;
+        setResultImage(imageUrl);
+      }
     } catch (err) {
       setError(`Đã xảy ra lỗi: ${err.message}`);
     } finally {
@@ -87,6 +96,7 @@ function App() {
                   hairShape: hairShape,
                   hairColor: hairColor
                 }}
+                semanticData={semanticData}  
               />
             </div>
           </>
@@ -95,6 +105,8 @@ function App() {
         return <Marketplace />; // Add this case
       case 'my-nfts':
         return <MyNFTs />;
+      case 'about':
+        return <About />;
       // ... other cases
       default:
         return <div>Không tìm thấy nội dung phù hợp.</div>;
