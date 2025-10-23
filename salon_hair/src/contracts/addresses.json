@@ -1,0 +1,8 @@
+{
+  "HairStyleNFT": "0x3499Ab4EfA1889c85ee413F79a87842092813429",
+  "Marketplace": "0x5Cf8543e14721B59db5f3AA10B089d3d82c7d0D4",
+  "network": "ganache",
+  "chainId": 1337,
+  "deployedAt": "2025-06-08T17:22:09.375Z",
+  "deployer": "0x6016D80BCba370B08e7070624526677d29B7254E"
+}
